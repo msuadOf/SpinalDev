@@ -25,7 +25,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 ####### Packages #######################################
 # Install some base tools and x11 tools
-RUN apt-get update && upgrade -y && apt-get install -y \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     apt-utils \
     ca-certificates 
 
@@ -84,7 +84,7 @@ RUN apt-get update && apt-get install -y \
 # Install sbt
 RUN apt-get install -y apt-transport-https #required for sbt debian
 
-#这个好像不太好用了
+#脮芒赂枚潞脙脧帽虏禄脤芦潞脙脫脙脕脣
 #RUN echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
 #RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
 
