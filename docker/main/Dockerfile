@@ -25,16 +25,16 @@ ENV DEBIAN_FRONTEND noninteractive
 
 ####### Packages #######################################
 # Install some base tools and x11 tools
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && upgrade && apt-get install -y \
     apt-utils \
     ca-certificates 
 
 RUN echo "\
-deb https://mirrors.bfsu.edu.cn/ubuntu/ focal main restricted universe multiverse\n\
-deb https://mirrors.bfsu.edu.cn/ubuntu/ focal-updates main restricted universe multiverse\n\
-deb https://mirrors.bfsu.edu.cn/ubuntu/ focal-backports main restricted universe multiverse\n\
-deb https://mirrors.bfsu.edu.cn/ubuntu/ focal-security main restricted universe multiverse\n\
-deb http://security.ubuntu.com/ubuntu/ focal-security main restricted universe multiverse\n\
+deb https://mirrors.bfsu.edu.cn/ubuntu/ focal main restricted universe multiverse
+deb https://mirrors.bfsu.edu.cn/ubuntu/ focal-updates main restricted universe multiverse
+deb https://mirrors.bfsu.edu.cn/ubuntu/ focal-backports main restricted universe multiverse
+deb https://mirrors.bfsu.edu.cn/ubuntu/ focal-security main restricted universe multiverse
+deb http://security.ubuntu.com/ubuntu/ focal-security main restricted universe multiverse
 " > /etc/apt/sources.list
 
 RUN apt-get update && apt-get update --fix-missing && apt-get install -y \
@@ -323,6 +323,8 @@ RUN chmod +x $WORKDIR/projects/user/project.bash
 USER root
 WORKDIR /
 # run the startup script each time the container is created
+RUN git clone https://github.com/plex1/SpinalDev.git
+COPY ./SpinalDev/docker/main/startup.sh .
 COPY ./startup.sh /opt
 RUN chmod +x /opt/startup.sh
 ENTRYPOINT ["/opt/startup.sh"]
