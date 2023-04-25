@@ -9,10 +9,10 @@
 # found at https://spinalhdl.github.io/SpinalDoc.
 
 # Pull base image
-FROM ubuntu:16.04
+FROM ubuntu:20.04
 
 # Set the maintainer
-MAINTAINER Felix Arnold (plex1) <felix.arnold@gmail.com>
+#MAINTAINER Felix Arnold (plex1) <felix.arnold@gmail.com>
 
 # Global arguments
 ARG USER=spinaldev
@@ -25,7 +25,15 @@ ENV DEBIAN_FRONTEND noninteractive
 
 ####### Packages #######################################
 # Install some base tools and x11 tools
-RUN apt-get update && apt-get install -y \
+RUN echo -e "\
+deb https://mirrors.bfsu.edu.cn/ubuntu/ focal main restricted universe multiverse\n\
+deb https://mirrors.bfsu.edu.cn/ubuntu/ focal-updates main restricted universe multiverse\n\
+deb https://mirrors.bfsu.edu.cn/ubuntu/ focal-backports main restricted universe multiverse\n\
+deb https://mirrors.bfsu.edu.cn/ubuntu/ focal-security main restricted universe multiverse\n\
+deb http://security.ubuntu.com/ubuntu/ focal-security main restricted universe multiverse\n\
+" > /etc/apt/sources.list
+
+RUN apt-get update && apt-get update --fix-missing && apt-get install -y \
   apt-utils \
   sudo \
   unzip \
@@ -36,8 +44,9 @@ RUN apt-get update && apt-get install -y \
   x11-apps \
   xfce4\
   xrdp \ 
-  xfce4-terminal 
- 
+  xfce4-terminal \
+  openssh-server \
+  ufw
 
 ####### Linux ##########################################
 
@@ -69,8 +78,15 @@ RUN apt-get update && apt-get install -y \
 
 # Install sbt
 RUN apt-get install -y apt-transport-https #required for sbt debian
-RUN echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
+
+#这个好像不太好用了
+#RUN echo "deb https://dl.bintray.com/sbt/debian /" | sudo tee -a /etc/apt/sources.list.d/sbt.list
+#RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823
+
+RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list \
+    && echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list \
+    && curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add
+
 RUN apt-get update
 RUN apt-get -y install sbt
 
@@ -245,18 +261,19 @@ RUN git clone https://github.com/YosysHQ/nextpnr nextpnr && \
 USER root
 
 # Set the version variables
-ARG INTELLIJ_VER=2020.1
-ARG INTELLIJ_SUBVER=1
+ARG INTELLIJ_VER=2023.1
+#ARG INTELLIJ_SUBVER=1
 # version id can be found on jetbrains webpage when downloading of scala plugin
 ARG INTELLIJ_VERID=47787
 
 # Download and install intellij
-RUN wget https://download.jetbrains.com/idea/ideaIC-$INTELLIJ_VER.$INTELLIJ_SUBVER.tar.gz -O /tmp/intellij.tar.gz -q && \
+RUN wget https://download.jetbrains.com/idea/ideaIC-$INTELLIJ_VER.tar.gz -O /tmp/intellij.tar.gz -q && \
     mkdir -p /opt/intellij && \
     tar -xf /tmp/intellij.tar.gz --strip-components=1 -C /opt/intellij && \
     rm /tmp/intellij.tar.gz
 RUN cd /opt/intellij/bin && \
-    ln -s idea.sh intellij
+    ln -s idea.sh intellij && \
+    ln -s idea.sh idea
 
 # Add intellij to path
 RUN echo 'export PATH=$PATH:/opt/intellij/bin/' >> $WORKDIR/.bashrc 
