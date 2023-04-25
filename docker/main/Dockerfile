@@ -49,7 +49,9 @@ RUN apt-get update && apt-get update --fix-missing && apt-get install -y \
   xrdp \ 
   xfce4-terminal \
   openssh-server \
-  ufw
+  ufw \
+  curl \
+  locales
 
 ####### Linux ##########################################
 
